@@ -25,8 +25,8 @@ from datetime import datetime
 from boto.ec2.cloudwatch import CloudWatchConnection
 from boto.ec2.regioninfo import RegionInfo
 
-from cluster import Cluster
-from host import Host
+#from cluster import Cluster
+#from host import Host
 
 from events import Events
 
@@ -59,8 +59,8 @@ class Monitor:
 		self.events = Events(key, access, cluster)
 
 		# get the host, but without the logging
-		self.host = Host(cluster)
-		self.node = self.host.get_node()
+		#self.host = Host(cluster)
+		self.node = public_hostname
 
 	def __log(self, message, logging='warning'):
 		self.events.log(self.node, 'Monitor', message, logging)
