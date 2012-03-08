@@ -25,11 +25,6 @@ from datetime import datetime
 from boto.ec2.cloudwatch import CloudWatchConnection
 from boto.ec2.regioninfo import RegionInfo
 
-#from cluster import Cluster
-#from host import Host
-
-from events import Events
-
 #
 # REDIS MONITOR
 #
@@ -56,17 +51,10 @@ class Monitor:
 		self.cloudwatch = CloudWatchConnection(key, access, region=region_info)
 		self.namespace = '9apps/redis'
 
-		self.events = Events(key, access, cluster)
-
 		# get the host, but without the logging
-		#self.host = Host(cluster)
 		self.node = public_hostname
 
-	def __log(self, message, logging='warning'):
-		self.events.log(self.node, 'Monitor', message, logging)
-
 	def collect(self):
-		self.__log('collecting metrics data from Redis INFO', 'info')
 		now = datetime.now()
 
 		items = self.redis.info()
@@ -78,7 +66,6 @@ class Monitor:
 					'cluster' : self.cluster }
 
 		if items['aof_enabled']:
-			self.__log('aof enabled: getting metrics data for the AOF', 'info')
 			names.append('bgrewriteaof_in_progress')
 			values.append(items['bgrewriteaof_in_progress'])
 			units.append('Count')
@@ -110,7 +97,6 @@ class Monitor:
 
 		for item in items:
 			if item >= 'db0' and item < 'dc':
-				self.__log('adding metrics data for database: {0}'.format(item), 'info')
 				names.append("{0}_keys".format(item))
 				values.append(items[item]['keys'])
 				units.append('Count')
@@ -254,11 +240,9 @@ class Monitor:
 
 			# we can't send all at once, only 20 at a time
 			# first aggregated over all
-			self.__log('put aggregated ReDiS metrics data', 'info')
 			result = self.cloudwatch.put_metric_data(self.namespace,
 									names20, value=values20, unit=units20)
 			for dimension in dimensions:
-				self.__log('put ReDiS metrics data for {0}'.format(dimensions[dimension]), 'info')
 				dimension = { dimension : dimensions[dimension] }
 				result &= self.cloudwatch.put_metric_data(self.namespace,
 									names20, value=values20, unit=units20,
