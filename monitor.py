@@ -32,10 +32,11 @@ from boto.ec2.regioninfo import RegionInfo
 class Monitor:
 	def __init__(self, key, access, cluster):
 		try:
-			url = "http://169.254.169.254/latest/meta-data/"
+			url = "http://169.254.169.254/latest/"
 
-			public_hostname = urlopen(url + "public-hostname").read()
-			zone = urlopen(url + "placement/availability-zone").read()
+			self.userdata = json.load(urlopen(url + "user-data/"))
+			public_hostname = urlopen(url + "meta-data/public-hostname/").read()
+			zone = urlopen(url + "meta-data/placement/availability-zone/").read()
 			region = zone[:-1]
 		except:
 			sys.exit("We should be getting user-data here...")
@@ -231,26 +232,32 @@ class Monitor:
 		return [names, values, units, dimensions]
 
 	def put(self):
-		# first get all we need
-		[names, values, units, dimensions] = self.collect()
-		while len(names) > 0:
-			names20 = names[:20]
-			values20 = values[:20]
-			units20 = units[:20]
+		result = False
+		# only monitor if we are told to
+		try:
+			if self.userdata['cloudwatch'] == "on":
+				# first get all we need
+				[names, values, units, dimensions] = self.collect()
+				while len(names) > 0:
+					names20 = names[:20]
+					values20 = values[:20]
+					units20 = units[:20]
 
-			# we can't send all at once, only 20 at a time
-			# first aggregated over all
-			result = self.cloudwatch.put_metric_data(self.namespace,
+					# we can't send all at once, only 20 at a time
+					# first aggregated over all
+					result = self.cloudwatch.put_metric_data(self.namespace,
 									names20, value=values20, unit=units20)
-			for dimension in dimensions:
-				dimension = { dimension : dimensions[dimension] }
-				result &= self.cloudwatch.put_metric_data(self.namespace,
-									names20, value=values20, unit=units20,
-									dimensions=dimension)
+					for dimension in dimensions:
+						dimension = { dimension : dimensions[dimension] }
+						result &= self.cloudwatch.put_metric_data(
+									self.namespace, names20, value=values20,
+									unit=units20, dimensions=dimension)
 
-			del names[:20]
-			del values[:20]
-			del units[:20]
+					del names[:20]
+					del values[:20]
+					del units[:20]
+		except:
+			print "we are not monitoring"
 
 		return result
 	
