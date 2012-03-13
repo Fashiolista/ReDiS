@@ -238,6 +238,10 @@ class Monitor:
 			if self.userdata['cloudwatch'] == "on":
 				# first get all we need
 				[names, values, units, dimensions] = self.collect()
+				print names
+				print values
+				print units
+				print dimensions
 				while len(names) > 0:
 					names20 = names[:20]
 					values20 = values[:20]
