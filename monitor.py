@@ -111,8 +111,8 @@ class Monitor:
 				db = redis.StrictRedis(host='localhost', port=6379, db=nr)
 				keys = db.keys('*')
 				for key in keys:
-					key = key.split('.')[-1]
 					key_type = db.type(key)
+					key = key.replace( '.', '_')
 
 					if key_type == "list":
 						llen = db.llen(key)
@@ -238,6 +238,10 @@ class Monitor:
 			if self.userdata['cloudwatch'] == "on":
 				# first get all we need
 				[names, values, units, dimensions] = self.collect()
+				print names
+				print values
+				print units
+				print dimensions
 				while len(names) > 0:
 					names20 = names[:20]
 					values20 = values[:20]
@@ -256,6 +260,8 @@ class Monitor:
 					del names[:20]
 					del values[:20]
 					del units[:20]
+			else:
+				print "we are not monitoring"
 		except:
 			print "we are not monitoring"
 
