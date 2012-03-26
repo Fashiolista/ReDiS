@@ -55,12 +55,14 @@ def log(message, logging='info'):
 
 if __name__ == '__main__':
 	log('leaving the cluster', 'info')
-	try:
+	#try:
+		# do not remove the tag, we might want to work on this later
+
 		# delete all there is to us
-		log('unset the tag', 'info')
-		ec2.unset_tag()
-	except Exception as e:
-		log(e, 'error')
+		#log('unset the tag', 'info')
+		#ec2.unset_tag()
+	#except Exception as e:
+		#log(e, 'error')
 
 	try:
 		log('delete the Route53 record', 'info')

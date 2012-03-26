@@ -66,6 +66,11 @@ class Monitor:
 		dimensions = { 'node' : self.node,
 					'cluster' : self.cluster }
 
+		slowlog_len = self.redis.execute_command('SLOWLOG','LEN')
+		names.append('slowlog_len')
+		values.append(slowlog_len)
+		units.append('Count')
+
 		if items['aof_enabled']:
 			names.append('bgrewriteaof_in_progress')
 			values.append(items['bgrewriteaof_in_progress'])
@@ -189,13 +194,13 @@ class Monitor:
 		units.append('Count')
 
 		# connection/command totals
-		names.append('total_connections_received')
-		values.append(items['total_connections_received'])
-		units.append('Count')
+		#names.append('total_connections_received')
+		#values.append(items['total_connections_received'])
+		#units.append('Count')
 
-		names.append('total_commands_processed')
-		values.append(items['total_commands_processed'])
-		units.append('Count')
+		#names.append('total_commands_processed')
+		#values.append(items['total_commands_processed'])
+		#units.append('Count')
 
 		# client input/output
 		names.append('client_biggest_input_buf')
@@ -221,13 +226,13 @@ class Monitor:
 		units.append('Count')
 
 		# keyspace
-		names.append('keyspace_misses')
-		values.append(items['keyspace_misses'])
-		units.append('Count')
+		#names.append('keyspace_misses')
+		#values.append(items['keyspace_misses'])
+		#units.append('Count')
 
-		names.append('keyspace_hits')
-		values.append(items['keyspace_hits'])
-		units.append('Count')
+		#names.append('keyspace_hits')
+		#values.append(items['keyspace_hits'])
+		#units.append('Count')
 
 		return [names, values, units, dimensions]
 
@@ -238,10 +243,6 @@ class Monitor:
 			if self.userdata['cloudwatch'] == "on":
 				# first get all we need
 				[names, values, units, dimensions] = self.collect()
-				print names
-				print values
-				print units
-				print dimensions
 				while len(names) > 0:
 					names20 = names[:20]
 					values20 = values[:20]
