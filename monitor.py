@@ -55,7 +55,10 @@ class Monitor:
 		# get the host, but without the logging
 		self.node = public_hostname
 
-	def collect(self):
+	def collect(self, monitoring = 'on'):
+		if monitoring not in ['on', 'all']:
+			return [[], [], [], {}]
+
 		now = datetime.now()
 
 		items = self.redis.info()
@@ -111,39 +114,40 @@ class Monitor:
 				values.append(items[item]['expires'])
 				units.append('Count')
 
-				# and now add some info on the keys
-				nr = item.lstrip('db')
-				db = redis.StrictRedis(host='localhost', port=6379, db=nr)
-				keys = db.keys('*')
-				for key in keys:
-					key_type = db.type(key)
-					key = key.replace( '.', '_')
+				# and now add some info on the keys, if we want
+				if monitoring == 'all':
+					nr = item.lstrip('db')
+					db = redis.StrictRedis(host='localhost', port=6379, db=nr)
+					keys = db.keys('*')
+					for key in keys:
+						key_type = db.type(key)
+						key = key.replace( '.', '_')
 
-					if key_type == "list":
-						llen = db.llen(key)
-						names.append("{0}_{1}_llen".format(item, key))
-						values.append(llen)
-						units.append('Count')
-					elif key_type == "hash":
-						hlen = db.hlen(key)
-						names.append("{0}_{1}_hlen".format(item, key))
-						values.append(hlen)
-						units.append('Count')
-					elif key_type == "set":
-						scard = db.scard(key)
-						names.append("{0}_{1}_scard".format(item, key))
-						values.append(scard)
-						units.append('Count')
-					elif key_type == "zset":
-						zcard = db.zcard(key)
-						names.append("{0}_{1}_zcard".format(item, key))
-						values.append(zcard)
-						units.append('Count')
-					elif key_type == "string":
-						strlen = db.strlen(key)
-						names.append("{0}_{1}_strlen".format(item, key))
-						values.append(strlen)
-						units.append('Count')
+						if key_type == "list":
+							llen = db.llen(key)
+							names.append("{0}_{1}_llen".format(item, key))
+							values.append(llen)
+							units.append('Count')
+						elif key_type == "hash":
+							hlen = db.hlen(key)
+							names.append("{0}_{1}_hlen".format(item, key))
+							values.append(hlen)
+							units.append('Count')
+						elif key_type == "set":
+							scard = db.scard(key)
+							names.append("{0}_{1}_scard".format(item, key))
+							values.append(scard)
+							units.append('Count')
+						elif key_type == "zset":
+							zcard = db.zcard(key)
+							names.append("{0}_{1}_zcard".format(item, key))
+							values.append(zcard)
+							units.append('Count')
+						elif key_type == "string":
+							strlen = db.strlen(key)
+							names.append("{0}_{1}_strlen".format(item, key))
+							values.append(strlen)
+							units.append('Count')
 
 		# pub/sub
 		names.append('pubsub_channels')
@@ -238,32 +242,34 @@ class Monitor:
 
 	def put(self):
 		result = False
-		# only monitor if we are told to
 		try:
-			if self.userdata['cloudwatch'] == "on":
-				# first get all we need
-				[names, values, units, dimensions] = self.collect()
-				while len(names) > 0:
-					names20 = names[:20]
-					values20 = values[:20]
-					units20 = units[:20]
-
-					# we can't send all at once, only 20 at a time
-					# first aggregated over all
-					result = self.cloudwatch.put_metric_data(self.namespace,
-									names20, value=values20, unit=units20)
-					for dimension in dimensions:
-						dimension = { dimension : dimensions[dimension] }
-						result &= self.cloudwatch.put_metric_data(
-									self.namespace, names20, value=values20,
-									unit=units20, dimensions=dimension)
-
-					del names[:20]
-					del values[:20]
-					del units[:20]
-			else:
-				print "we are not monitoring"
+			# only monitor if we are told to (this will break, if not set)
+			monitoring = self.userdata['monitoring']
 		except:
+			monitoring = 'on'
+
+		if monitoring in ['on', 'all']:
+			# first get all we need
+			[names, values, units, dimensions] = self.collect(monitoring)
+			while len(names) > 0:
+				names20 = names[:20]
+				values20 = values[:20]
+				units20 = units[:20]
+
+				# we can't send all at once, only 20 at a time
+				# first aggregated over all
+				result = self.cloudwatch.put_metric_data(self.namespace,
+								names20, value=values20, unit=units20)
+				for dimension in dimensions:
+					dimension = { dimension : dimensions[dimension] }
+					result &= self.cloudwatch.put_metric_data(
+								self.namespace, names20, value=values20,
+								unit=units20, dimensions=dimension)
+
+				del names[:20]
+				del values[:20]
+				del units[:20]
+		else:
 			print "we are not monitoring"
 
 		return result
