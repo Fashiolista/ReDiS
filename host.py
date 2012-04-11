@@ -70,6 +70,7 @@ class Host:
 		self.__log('set_master: {0}'.format(master), 'info')
 		self.master = master
 		try:
+			os.system("/usr/sbin/monit monitor redis")
 			if None == master:
 				self.__log('slaveof()', 'info')
 				self.redis.slaveof()

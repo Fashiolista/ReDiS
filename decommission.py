@@ -73,8 +73,9 @@ def decommission(key, access, cluster, persistence="no"):
 	os.system("/bin/echo | /usr/bin/crontab")
 
 	# make sure we make a clean AMI, with all monit checks monitored
-	log('finally, monitor all (monit), for making AMIs', 'info')
-	os.system("/usr/sbin/monit monitor all")
+	log("finally, monitor all (monit), but 'redis' and slave", 'info')
+	os.system("/usr/sbin/monit unmonitor redis")
+	os.system("/usr/sbin/monit unmonitor slave")
 
 if __name__ == '__main__':
 	import os, sys
