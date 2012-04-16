@@ -66,12 +66,16 @@ if __name__ == '__main__':
 		if link_status != "up":
 			log('how long are we down?', 'info')
 			link_down_since_seconds = info['master_link_down_since_seconds']
+			master_sync_in_progress = info['master_sync_in_progress']
 
-			down = (link_down_since_seconds > 30)
+			# if not syncing, and link down longer than 30s
+			down = ((master_sync_in_progress == 0) and
+					(link_down_since_seconds > 30))
 		else:
 			down = False
+
 	except Exception as e:
-		log('we are down, or we were master, in case we should not be here ', 'info')
+		log('master are down, or we were master, in any case we should not be here ', 'info')
 		down = True
 
 	if down:

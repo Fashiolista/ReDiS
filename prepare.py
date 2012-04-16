@@ -57,7 +57,7 @@ def log(message, logging='warning'):
 # we are going to work with local files, we need our path
 path = os.path.dirname(os.path.abspath(__file__))
 
-def provision(key, access, cluster, size, maxmemory = -1, persistence="no", snapshot=None, rdb=None):
+def provision(key, access, cluster, size, maxmemory=-1, policy=None, persistence="no", snapshot=None, rdb=None):
 	log('start provisioning', 'info')
 	# ec2 is region specific
 	region_info = RegionInfo(name=region,
@@ -130,6 +130,9 @@ def provision(key, access, cluster, size, maxmemory = -1, persistence="no", snap
 		if maxmemory > 0:
 			os.system("/bin/sed 's/^# maxmemory <bytes>.*$/maxmemory {0}/' -i {1}".format(maxmemory, dst))
 
+			if policy != None:
+				os.system("/bin/sed 's/^# maxmemory-policy.*$/maxmemory-policy {0}/' -i {1}".format(policy, dst))
+
 		# and root's cron will be set accordingly as well
 		log('setting up cron', 'info')
 		os.system("/bin/sed 's:INSTALLPATH:{0}:' {1} | /usr/bin/crontab".format(path, cron))
@@ -200,9 +203,15 @@ if __name__ == '__main__':
 		rdb = None
 
 	maxmemory = -1
+	policy = None
 	try:
 		if userdata['maxmemory'] == 'on':
 			maxmemory = int(0.6 * (meminfo()['MemTotal'] * 1024))
+
+		try:
+			policy = userdata['maxmemory-policy']
+		except:
+			pass
 	except:
 		pass
 
@@ -211,5 +220,5 @@ if __name__ == '__main__':
 	# Usefult for playing around with this project
 	size = 5 if size == 0 else size	
 
-	provision(sys.argv[1], sys.argv[2], cluster, size, maxmemory,
-				persistence=persistence, snapshot=snapshot, rdb=rdb)
+	provision(sys.argv[1], sys.argv[2], cluster, size, maxmemory, policy,
+					persistence=persistence, snapshot=snapshot, rdb=rdb)

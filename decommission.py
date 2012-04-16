@@ -69,8 +69,8 @@ def decommission(key, access, cluster, persistence="no"):
 	log('remove redis.conf', 'info')
 	os.system("/bin/rm -f /etc/redis/redis.conf")
 	# and empty the cron as well
-	log('empty the cron', 'info')
-	os.system("/bin/echo | /usr/bin/crontab")
+	#log('empty the cron', 'info')
+	#os.system("/bin/echo | /usr/bin/crontab")
 
 	# make sure we make a clean AMI, with all monit checks monitored
 	log("finally, monitor all (monit), but 'redis' and slave", 'info')
