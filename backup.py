@@ -88,15 +88,15 @@ def put_RDB(key, access, cluster, prefix='hourly'):
 	# first cp/gzip RDB to temporary location
 	now = strftime("%Y-%m-%d %H:%M:%S", gmtime())
 	filename = "{1}.rdb.gz".format(prefix, now)
-	os.system("/bin/gzip -c {0} > '/tmp/{1}'".format(src, filename))
+	os.system("/bin/gzip -c {0} > '/mnt/{1}'".format(src, filename))
 
 	# copy the file to the bucket (with a prefix)
 	dump = Key(bucket)
 	dump.key = "{0}/{1}".format(prefix, filename)
-	dump.set_contents_from_filename( "/tmp/{0}".format( filename))
+	dump.set_contents_from_filename( "/mnt/{0}".format( filename))
 
 	# we are done, remove it
-	os.system("/bin/rm '/tmp/{0}'".format(filename))
+	os.system("/bin/rm '/mnt/{0}'".format(filename))
 
 	return dump.key
 
