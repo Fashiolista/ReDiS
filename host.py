@@ -16,7 +16,7 @@
 # along with Redis for AWS. If not, see <http://www.gnu.org/licenses/>.
 
 
-import os, sys
+import os, sys, time
 
 import json
 import hashlib
@@ -79,7 +79,19 @@ class Host:
 				os.system("/usr/sbin/monit unmonitor slave")
 			else:
 				self.__log('slaveof({0})'.format(master), 'info')
-				self.redis.slaveof(master, 6379)
+				while True:
+					try:
+						self.redis.slaveof(master, 6379)
+						self.__log('master now: ({0})'.format(master), 'info')
+						break
+					except Exception as e:
+						self.__log(e, 'error')
+						if str(e) == "Redis is loading data into memory":
+							self.__log('retrying slaveof, in a sec', 'info')
+							time.sleep(1)
+						else:
+							self.__log('different error', 'info')
+							raise e
 
 				self.__log('monit monitor slave', 'info')
 				os.system("/usr/sbin/monit monitor slave")

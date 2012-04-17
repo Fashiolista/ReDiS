@@ -22,6 +22,5 @@
 
 dirname=`dirname $0`
 
-source ${dirname}/config.sh
-# we only 'remaster' if we have been slave before
-[ -f /var/run/redis/slave ] && python ${dirname}/remaster.py
+# we are slave, signal this fact to the world
+/usr/bin/touch /var/run/redis/slave

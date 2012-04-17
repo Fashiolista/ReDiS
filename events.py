@@ -52,6 +52,7 @@ class Events:
 
 		try:
 			self.logging = userdata['logging']
+			#self.logging = 'info'
 		except:
 			self.logging = 'warning'
 
@@ -61,7 +62,7 @@ class Events:
 
 		auto_increment = domain.new_item('auto-increment')
 		auto_increment.add_value('value',0)
-		auto_increment.save(replace=True)
+		#auto_increment.save(replace=True)
 
 	def log(self, node, component, message, logging=None):
 		domain = self.__domain(self.sdb, self.events)
