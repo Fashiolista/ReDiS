@@ -104,6 +104,8 @@ def provision(key, access, cluster, size, maxmemory=-1, policy=None, persistence
 				os.system("/sbin/mkfs.xfs {0}".format(device))
 
 			log('mounting the filesystem', 'info')
+			log('(but cleaning the mountpoint first)', 'info')
+			os.system("/bin/rm -rf {0}".format(mount))
 			# mount, but first wait until the device is ready
 			os.system("/bin/mount -t xfs -o defaults {0} {1}".format(device, mount))
 			# and grow (if necessary)
