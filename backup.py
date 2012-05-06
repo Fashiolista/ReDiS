@@ -118,9 +118,8 @@ def make_snapshot(key, access, cluster, expiration='hourly'):
 					"Backup of {0} - for {1} - expires {2}".format(volume_id,
 														cluster,
 														expires[expiration]))
-		os.system("/usr/sbin/xfs_freeze -u {0}".format(mount))
 	except:
-		pass
+		os.system("/usr/sbin/xfs_freeze -u {0}".format(mount))
 
 	return ["{0}".format(snapshot.id), expires[expiration]]
 
@@ -163,8 +162,8 @@ if __name__ == '__main__':
 		administration.set_RDB(sys.argv[2], sys.argv[3], cluster, key)
 	elif "snapshot" == sys.argv[1]:
 		backup = make_snapshot(sys.argv[2], sys.argv[3], cluster, sys.argv[4])
-		administration.add_snapshot(sys.argv[2], sys.argv[3],
-											cluster, backup)
+		#administration.add_snapshot(sys.argv[2], sys.argv[3],
+		#									cluster, backup)
 	elif "purge" == sys.argv[1]:
 		snapshots = administration.get_expired_snapshots(sys.argv[2],
 											sys.argv[3], cluster)
