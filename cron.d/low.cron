@@ -22,7 +22,7 @@
 
 * * * * * INSTALLPATH/monitor.sh > /dev/null 2>&1
 
-@hourly INSTALLPATH/backup.sh rdb hourly > /dev/null 2>&1
-@daily INSTALLPATH/backup.sh rdb daily > /dev/null 2>&1
-@weekly INSTALLPATH/backup.sh rdb weekly > /dev/null 2>&1
-@monthly INSTALLPATH/backup.sh rdb monthly > /dev/null 2>&1
+05 * * * * INSTALLPATH/backup.sh rdb hourly > /dev/null 2>&1
+35 06 * * * INSTALLPATH/backup.sh rdb daily > /dev/null 2>&1
+20 07 * * 0 INSTALLPATH/backup.sh rdb weekly > /dev/null 2>&1
+50 07 1 * * INSTALLPATH/backup.sh rdb monthly > /dev/null 2>&1

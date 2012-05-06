@@ -118,7 +118,7 @@ def make_snapshot(key, access, cluster, expiration='hourly'):
 					"Backup of {0} - for {1} - expires {2}".format(volume_id,
 														cluster,
 														expires[expiration]))
-	except:
+	finally:
 		os.system("/usr/sbin/xfs_freeze -u {0}".format(mount))
 
 	return ["{0}".format(snapshot.id), expires[expiration]]
