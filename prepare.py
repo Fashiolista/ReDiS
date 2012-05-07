@@ -208,7 +208,7 @@ if __name__ == '__main__':
 	policy = None
 	try:
 		if userdata['maxmemory'] == 'on':
-			maxmemory = int(0.6 * (meminfo()['MemTotal'] * 1024))
+			maxmemory = int(0.8 * (meminfo()['MemTotal'] * 1024))
 
 		try:
 			policy = userdata['maxmemory-policy']
