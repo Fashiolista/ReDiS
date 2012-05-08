@@ -162,8 +162,8 @@ if __name__ == '__main__':
 		administration.set_RDB(sys.argv[2], sys.argv[3], cluster, key)
 	elif "snapshot" == sys.argv[1]:
 		backup = make_snapshot(sys.argv[2], sys.argv[3], cluster, sys.argv[4])
-		#administration.add_snapshot(sys.argv[2], sys.argv[3],
-		#									cluster, backup)
+		administration.add_snapshot(sys.argv[2], sys.argv[3],
+											cluster, backup)
 	elif "purge" == sys.argv[1]:
 		snapshots = administration.get_expired_snapshots(sys.argv[2],
 											sys.argv[3], cluster)
