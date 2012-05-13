@@ -33,3 +33,5 @@
 
 50 07 1 * * INSTALLPATH/backup.sh rdb monthly > /dev/null 2>&1
 00 07 1 * * INSTALLPATH/backup.sh snapshot monthly > /dev/null 2>&1
+
+@daily INSTALLPATH/backup.sh purge > /dev/null 2>&1
